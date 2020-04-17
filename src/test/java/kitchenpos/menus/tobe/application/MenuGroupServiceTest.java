@@ -26,6 +26,7 @@ class MenuGroupServiceTest {
     @DisplayName("메뉴 그룹을 생성한다.")
     @Test
     void create() {
+        //TODO BDD 스타일의 테스트 작성해보기
         when(menuGroupRepository.save(any())).thenReturn(Fixtures.twoChickens());
 
         assertThat(menuGroupService.create(Fixtures.twoChickens().getName()))

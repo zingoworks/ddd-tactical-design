@@ -20,6 +20,7 @@ public class MenuGroupService {
         return menuGroupRepository.save(new MenuGroup(name)).getName();
     }
 
+    //TODO DTO 사용
     public List<MenuGroup> list() {
         return menuGroupRepository.findAll();
     }

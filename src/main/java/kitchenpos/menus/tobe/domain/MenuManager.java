@@ -23,6 +23,7 @@ public class MenuManager {
         this.productPriceManager = productPriceManager;
     }
 
+    //TODO MenuManager는 도메인 layer에 있고, MenuRequestDto는 애플리케이션 layer에 있는데요. 도메인 layer가 애플리케이션 layer를 의존하고 있는 부분을 변경해보는 건 어떨까요?
     public Menu create(MenuRequestDto requestDto) {
         MenuGroup menuGroup = menuGroupRepository.findById(requestDto.getMenuGroupId())
             .orElseThrow(IllegalArgumentException::new);

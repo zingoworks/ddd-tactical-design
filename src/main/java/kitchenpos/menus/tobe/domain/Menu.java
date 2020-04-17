@@ -32,6 +32,7 @@ public class Menu {
     private MenuGroup menuGroup;
 
     @Transient
+    //TODO JPA 사용법에 관한 것인데, @OneToMany(mappedBy = "menu")를 사용하는 건 어떨까요?
     private List<MenuProduct> menuProducts = new ArrayList<>();
 
     public Menu() {
