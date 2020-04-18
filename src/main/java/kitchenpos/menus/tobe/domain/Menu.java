@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.Transient;
+import javax.persistence.OneToMany;
 import kitchenpos.commons.domain.Price;
 import org.springframework.util.StringUtils;
 
@@ -31,15 +31,13 @@ public class Menu {
     @JoinColumn(name = "menu_group_id")
     private MenuGroup menuGroup;
 
-    @Transient
-    //TODO JPA 사용법에 관한 것인데, @OneToMany(mappedBy = "menu")를 사용하는 건 어떨까요?
+    @OneToMany(mappedBy = "menu")
     private List<MenuProduct> menuProducts = new ArrayList<>();
 
     public Menu() {
     }
 
-    public Menu(Long id, String name, Price price, MenuGroup menuGroup,
-        List<MenuProduct> menuProducts) {
+    public Menu(Long id, String name, Price price, MenuGroup menuGroup, List<MenuProduct> menuProducts) {
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException();
         }
@@ -54,8 +52,16 @@ public class Menu {
         this(null, name, Price.valueOf(price), menuGroup, new ArrayList<>());
     }
 
+    public Menu(String name, BigDecimal price, MenuGroup menuGroup, List<MenuProduct> menuProducts) {
+        this(null, name, Price.valueOf(price), menuGroup, menuProducts);
+    }
+
     public void injectMenuProducts(List<MenuProduct> menuProducts) {
         this.menuProducts = menuProducts;
+    }
+
+    public boolean isInvalidPrice(BigDecimal target) {
+        return this.price.getPrice().compareTo(target) > 0;
     }
 
     public Long getId() {

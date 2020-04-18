@@ -1,15 +1,14 @@
 package kitchenpos.menus.tobe.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Optional;
 import kitchenpos.menus.tobe.Fixtures;
-import kitchenpos.menus.tobe.application.dto.MenuRequestDto;
 import kitchenpos.menus.tobe.infrastructure.ProductPriceManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,27 +30,32 @@ class MenuManagerTest {
     private MenuProductRepository menuProductRepository;
 
     @Mock
-    private MenuGroupRepository menuGroupRepository;
-
-    @Mock
     private ProductPriceManager productPriceManager;
 
     @DisplayName("메뉴를 등록한다.")
     @Test
     void create() {
-        MenuRequestDto requestDto = new MenuRequestDto("후라이드 + 후라이드", BigDecimal.valueOf(19_000L),
-            Fixtures.twoChickens().getId(),
-            Arrays.asList(Fixtures.menuProduct()));
+        Menu menu = new Menu("후라이드 + 후라이드", BigDecimal.valueOf(19_000L),
+            Fixtures.twoChickens(), Arrays.asList(Fixtures.menuProduct()));
 
-        when(menuGroupRepository.findById(any())).thenReturn(Optional.of(Fixtures.twoChickens()));
         when(productPriceManager.getPrice(any())).thenReturn(BigDecimal.valueOf(9_500L));
         when(menuRepository.save(any())).thenReturn(Fixtures.twoFriedChickens());
-        when(menuProductRepository.findByMenuId(any()))
-            .thenReturn(Arrays.asList(Fixtures.menuProduct()));
 
-        Menu created = menuManager.create(requestDto);
+        Menu created = menuManager.create(menu);
 
         assertMenu(created, Fixtures.twoFriedChickens());
+    }
+
+    @DisplayName("가격이 유효하지 않은 메뉴는 등록할 수 없다.")
+    @Test
+    void canNotCreate() {
+        Menu menu = new Menu("후라이드 + 후라이드", BigDecimal.valueOf(19_000L),
+            Fixtures.twoChickens(), Arrays.asList(Fixtures.menuProduct()));
+
+        when(productPriceManager.getPrice(any())).thenReturn(BigDecimal.valueOf(5_500L));
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> menuManager.create(menu));
     }
 
     @DisplayName("메뉴 리스트를 가져온다.")

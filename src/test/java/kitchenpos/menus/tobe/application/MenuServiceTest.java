@@ -6,8 +6,10 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Optional;
 import kitchenpos.menus.tobe.Fixtures;
 import kitchenpos.menus.tobe.application.dto.MenuRequestDto;
+import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import kitchenpos.menus.tobe.domain.MenuManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,9 @@ class MenuServiceTest {
     @Mock
     private MenuManager menuManager;
 
+    @Mock
+    private MenuGroupRepository menuGroupRepository;
+
     @DisplayName("메뉴 생성한다.")
     @Test
     void create() {
@@ -32,6 +37,7 @@ class MenuServiceTest {
             Fixtures.twoChickens().getId(),
             Arrays.asList(Fixtures.menuProduct()));
 
+        when(menuGroupRepository.findById(any())).thenReturn(Optional.of(Fixtures.twoChickens()));
         when(menuManager.create(any())).thenReturn(Fixtures.twoFriedChickens());
 
         assertThat(menuService.create(requestDto)).isEqualTo(Fixtures.twoFriedChickens().getId());
@@ -45,5 +51,4 @@ class MenuServiceTest {
         assertThat(menuService.list())
             .containsExactlyInAnyOrderElementsOf(Arrays.asList(Fixtures.twoFriedChickens()));
     }
-
 }

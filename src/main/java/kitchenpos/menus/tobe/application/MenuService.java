@@ -3,8 +3,9 @@ package kitchenpos.menus.tobe.application;
 import java.util.List;
 import kitchenpos.menus.tobe.application.dto.MenuRequestDto;
 import kitchenpos.menus.tobe.domain.Menu;
+import kitchenpos.menus.tobe.domain.MenuGroup;
+import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import kitchenpos.menus.tobe.domain.MenuManager;
-import kitchenpos.menus.tobe.domain.MenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,16 +14,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class MenuService {
 
     private final MenuManager menuManager;
-    private final MenuRepository menuRepository;
 
-    public MenuService(MenuManager menuManager, MenuRepository menuRepository) {
+    private final MenuGroupRepository menuGroupRepository;
+
+    public MenuService(MenuManager menuManager, MenuGroupRepository menuGroupRepository) {
         this.menuManager = menuManager;
-        this.menuRepository = menuRepository;
+        this.menuGroupRepository = menuGroupRepository;
     }
 
     public Long create(MenuRequestDto requestDto) {
-        //TODO 도메인서비스가 애플리케이션 레이어의 dto에 의존하지 않도록 개선해보자
-        return menuManager.create(requestDto).getId();
+        MenuGroup menuGroup = menuGroupRepository.findById(requestDto.getMenuGroupId())
+            .orElseThrow(IllegalArgumentException::new);
+        Menu menu = new Menu(requestDto.getName(), requestDto.getPrice(), menuGroup, requestDto.getMenuProducts());
+        Menu created = menuManager.create(menu);
+        return created.getId();
     }
 
     public List<Menu> list() {

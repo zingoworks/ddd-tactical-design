@@ -2,7 +2,6 @@ package kitchenpos.menus.tobe.domain;
 
 import java.math.BigDecimal;
 import java.util.List;
-import kitchenpos.menus.tobe.application.dto.MenuRequestDto;
 import kitchenpos.menus.tobe.infrastructure.ProductPriceManager;
 import org.springframework.stereotype.Component;
 
@@ -23,23 +22,18 @@ public class MenuManager {
         this.productPriceManager = productPriceManager;
     }
 
-    //TODO MenuManager는 도메인 layer에 있고, MenuRequestDto는 애플리케이션 layer에 있는데요. 도메인 layer가 애플리케이션 layer를 의존하고 있는 부분을 변경해보는 건 어떨까요?
-    public Menu create(MenuRequestDto requestDto) {
-        MenuGroup menuGroup = menuGroupRepository.findById(requestDto.getMenuGroupId())
-            .orElseThrow(IllegalArgumentException::new);
-
-        BigDecimal sum = requestDto.getMenuProducts().stream()
+    public Menu create(Menu menu) {
+        BigDecimal sum = menu.getMenuProducts().stream()
             .map(p -> p.calculatePrice(productPriceManager.getPrice(p.getProductId())))
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        if (requestDto.getPrice().compareTo(sum) > 0) {
+        if (menu.getPrice().compareTo(sum) > 0) {
             throw new IllegalArgumentException();
         }
 
-        Menu menu = menuRepository
-            .save(new Menu(requestDto.getName(), requestDto.getPrice(), menuGroup));
-        updateMenuProductsStatus(menu);
-        return menu;
+        Menu created = menuRepository.save(menu);
+        updateMenuProductsStatus(created);
+        return created;
     }
 
     private void updateMenuProductsStatus(Menu menu) {

@@ -30,6 +30,10 @@ public class Price {
         return price;
     }
 
+    public int compareTo(BigDecimal target) {
+        return price.compareTo(target);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
