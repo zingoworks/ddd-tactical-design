@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import kitchenpos.menus.tobe.Fixtures;
+import kitchenpos.menus.tobe.application.dto.MenuGroupsResponseDto;
 import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,8 +39,7 @@ class MenuGroupServiceTest {
     void list() {
         when(menuGroupRepository.findAll()).thenReturn(Arrays.asList(Fixtures.twoChickens()));
 
-        assertThat(menuGroupService.list())
-            .containsExactlyInAnyOrderElementsOf(Arrays.asList(Fixtures.twoChickens()));
-
+        assertThat(menuGroupService.list().getMenuGroupNames())
+            .isEqualTo(new MenuGroupsResponseDto(Arrays.asList(Fixtures.twoChickens())).getMenuGroupNames());
     }
 }

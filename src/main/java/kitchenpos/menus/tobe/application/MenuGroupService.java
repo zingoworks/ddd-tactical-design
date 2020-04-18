@@ -1,6 +1,6 @@
 package kitchenpos.menus.tobe.application;
 
-import java.util.List;
+import kitchenpos.menus.tobe.application.dto.MenuGroupsResponseDto;
 import kitchenpos.menus.tobe.domain.MenuGroup;
 import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import org.springframework.stereotype.Service;
@@ -20,8 +20,7 @@ public class MenuGroupService {
         return menuGroupRepository.save(new MenuGroup(name)).getName();
     }
 
-    //TODO DTO 사용
-    public List<MenuGroup> list() {
-        return menuGroupRepository.findAll();
+    public MenuGroupsResponseDto list() {
+        return new MenuGroupsResponseDto(menuGroupRepository.findAll());
     }
 }
