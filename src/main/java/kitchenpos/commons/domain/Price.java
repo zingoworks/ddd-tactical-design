@@ -6,7 +6,6 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @Embeddable
-//TODO 일부 중복이 발생하더라도(의도적인 중복) 컨텍스트마다 Price를 둔다면, 추후 특정 컨텍스트를 떼어내서 독립적으로 운영해야 할 때 분리시키는 작업이 수월하지 않을까요?
 public class Price {
 
     @Column(name = "price")

@@ -1,9 +1,9 @@
 package kitchenpos.menus.tobe.domain;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
@@ -38,12 +38,20 @@ class MenuManagerTest {
         Menu menu = new Menu("후라이드 + 후라이드", BigDecimal.valueOf(19_000L),
             Fixtures.twoChickens(), Arrays.asList(Fixtures.menuProduct()));
 
-        when(productPriceManager.getPrice(any())).thenReturn(BigDecimal.valueOf(9_500L));
-        when(menuRepository.save(any())).thenReturn(Fixtures.twoFriedChickens());
+        given(productPriceManager.getPrice(any())).willReturn(BigDecimal.valueOf(9_500L));
+        given(menuRepository.save(any())).willReturn(Fixtures.twoFriedChickens());
 
-        Menu created = menuManager.create(menu);
+        menuManager.create(menu);
 
-        assertMenu(created, Fixtures.twoFriedChickens());
+        then(productPriceManager)
+            .should()
+            .getPrice(Fixtures.menuProduct().getProductId())
+        ;
+
+        then(menuRepository)
+            .should()
+            .save(menu)
+        ;
     }
 
     @DisplayName("가격이 유효하지 않은 메뉴는 등록할 수 없다.")
@@ -61,23 +69,20 @@ class MenuManagerTest {
     @DisplayName("메뉴 리스트를 가져온다.")
     @Test
     void list() {
-        when(menuRepository.findAll()).thenReturn(Arrays.asList(Fixtures.twoFriedChickens()));
-        when(menuProductRepository.findByMenuId(any()))
-            .thenReturn(Arrays.asList(Fixtures.menuProduct()));
+        given(menuRepository.findAll()).willReturn(Arrays.asList(Fixtures.twoFriedChickens()));
+        given(menuProductRepository.findByMenuId(any()))
+            .willReturn(Arrays.asList(Fixtures.menuProduct()));
 
-        assertThat(menuManager.list())
-            .containsExactlyInAnyOrderElementsOf(Arrays.asList(Fixtures.twoFriedChickens()));
+        menuManager.list();
+
+        then(menuRepository)
+            .should()
+            .findAll()
+        ;
+
+        then(menuProductRepository)
+            .should()
+            .findByMenuId(Fixtures.menuProduct().getMenu().getId())
+        ;
     }
-
-    private void assertMenu(final Menu expected, final Menu actual) {
-        assertThat(actual).isNotNull();
-        assertAll(
-            () -> assertThat(actual.getName()).isEqualTo(expected.getName()),
-            () -> assertThat(actual.getPrice()).isEqualTo(expected.getPrice()),
-            () -> assertThat(actual.getMenuGroup()).isEqualTo(expected.getMenuGroup()),
-            () -> assertThat(actual.getMenuProducts())
-                .containsExactlyInAnyOrderElementsOf(expected.getMenuProducts())
-        );
-    }
-
 }

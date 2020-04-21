@@ -1,12 +1,12 @@
 package kitchenpos.menus.tobe.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.util.Arrays;
 import kitchenpos.menus.tobe.Fixtures;
-import kitchenpos.menus.tobe.application.dto.MenuGroupsResponseDto;
+import kitchenpos.menus.tobe.domain.MenuGroup;
 import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,19 +27,24 @@ class MenuGroupServiceTest {
     @DisplayName("메뉴 그룹을 생성한다.")
     @Test
     void create() {
-        //TODO BDD 스타일의 테스트 작성해보기
-        when(menuGroupRepository.save(any())).thenReturn(Fixtures.twoChickens());
+        given(menuGroupRepository.save(any())).willReturn(Fixtures.twoChickens());
 
-        assertThat(menuGroupService.create(Fixtures.twoChickens().getName()))
-            .isEqualTo(Fixtures.twoChickens().getName());
+        menuGroupService.create(Fixtures.twoChickens().getName());
+
+        then(menuGroupRepository)
+            .should()
+            .save(new MenuGroup(Fixtures.twoChickens().getName()));
     }
 
     @DisplayName("메뉴그룹 리스트를 가져온다.")
     @Test
     void list() {
-        when(menuGroupRepository.findAll()).thenReturn(Arrays.asList(Fixtures.twoChickens()));
+        given(menuGroupRepository.findAll()).willReturn(Arrays.asList(Fixtures.twoChickens()));
 
-        assertThat(menuGroupService.list().getMenuGroupNames())
-            .isEqualTo(new MenuGroupsResponseDto(Arrays.asList(Fixtures.twoChickens())).getMenuGroupNames());
+        menuGroupService.list();
+
+        then(menuGroupRepository)
+            .should()
+            .findAll();
     }
 }

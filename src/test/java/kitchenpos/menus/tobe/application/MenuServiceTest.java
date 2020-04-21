@@ -1,14 +1,15 @@
 package kitchenpos.menus.tobe.application;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 import kitchenpos.menus.tobe.Fixtures;
 import kitchenpos.menus.tobe.application.dto.MenuRequestDto;
+import kitchenpos.menus.tobe.domain.Menu;
 import kitchenpos.menus.tobe.domain.MenuGroupRepository;
 import kitchenpos.menus.tobe.domain.MenuManager;
 import org.junit.jupiter.api.DisplayName;
@@ -37,18 +38,33 @@ class MenuServiceTest {
             Fixtures.twoChickens().getId(),
             Arrays.asList(Fixtures.menuProduct()));
 
-        when(menuGroupRepository.findById(any())).thenReturn(Optional.of(Fixtures.twoChickens()));
-        when(menuManager.create(any())).thenReturn(Fixtures.twoFriedChickens());
+        given(menuGroupRepository.findById(any())).willReturn(Optional.of(Fixtures.twoChickens()));
+        given(menuManager.create(any())).willReturn(Fixtures.twoFriedChickens());
 
-        assertThat(menuService.create(requestDto)).isEqualTo(Fixtures.twoFriedChickens().getId());
+        menuService.create(requestDto);
+
+        then(menuGroupRepository)
+            .should()
+            .findById(requestDto.getMenuGroupId())
+        ;
+
+        then(menuManager)
+            .should()
+            .create(new Menu(requestDto.getName(), requestDto.getPrice(), Fixtures.twoChickens(),
+                Arrays.asList(Fixtures.menuProduct())))
+        ;
     }
 
     @DisplayName("메뉴 리스트를 가져온다.")
     @Test
     void list() {
-        when(menuManager.list()).thenReturn(Arrays.asList(Fixtures.twoFriedChickens()));
+        given(menuManager.list()).willReturn(Arrays.asList(Fixtures.twoFriedChickens()));
 
-        assertThat(menuService.list())
-            .containsExactlyInAnyOrderElementsOf(Arrays.asList(Fixtures.twoFriedChickens()));
+        menuService.list();
+
+        then(menuManager)
+            .should()
+            .list()
+        ;
     }
 }
